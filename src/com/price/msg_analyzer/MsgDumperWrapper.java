@@ -2,22 +2,22 @@ package com.price.msg_analyzer;
 
 import com.price.msg_dumper.*;
 
-public class ErrorWriter 
+public class MsgDumperWrapper 
 {
-	private static ErrorWriter instance = null;
+	private static MsgDumperWrapper instance = null;
 	static MsgDumper msg_dumper = null;
 
-	public static ErrorWriter get_instance()
+	public static MsgDumperWrapper get_instance()
 	{
 		if (instance == null)
 		{
-			instance = new ErrorWriter();
+			instance = new MsgDumperWrapper();
 			instance.init();
 		}
 		return instance;
 	}
 
-	private ErrorWriter()
+	private MsgDumperWrapper()
 	{
 		
 	}
@@ -30,8 +30,8 @@ public class ErrorWriter
 	private void init()
 	{
 		short ret = MsgDumperCmnDef.MSG_DUMPER_SUCCESS;
-		short severity = MsgDumperCmnDef.MSG_DUMPER_SEVIRITY_DEBUG;
-		short facility = MsgDumperCmnDef.MSG_DUMPER_FACILITY_ALL;
+		short severity = MsgDumperCmnDef.MSG_DUMPER_SEVIRITY_ERROR;
+		short facility = MsgDumperCmnDef.MSG_DUMPER_FACILITY_LOG;
 		System.out.printf("Error Writer API version: (%s)\n", MsgDumper.get_version());
 // Set severity
 		System.out.printf("Error Writer Set severity to :%d\n", severity);
