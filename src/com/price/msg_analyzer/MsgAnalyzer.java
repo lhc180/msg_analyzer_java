@@ -2,6 +2,7 @@ package com.price.msg_analyzer;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.Thread;
 
 public class MsgAnalyzer 
 {
@@ -26,6 +27,8 @@ public class MsgAnalyzer
 			System.out.println("Time: " + dateMatcher.group(2));
 			System.out.println("Number: " + dateMatcher.group(3));
 			System.out.println("Severity: " + dateMatcher.group(4));
-		}		
+		}
+		String res = my_str.replaceAll("\\s", "");
+		System.out.println("res: " + res);
 	}
 }

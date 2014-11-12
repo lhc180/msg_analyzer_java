@@ -1,6 +1,7 @@
 package com.price.msg_analyzer;
 
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 
 public class SerialReceiver implements Runnable
@@ -8,8 +9,8 @@ public class SerialReceiver implements Runnable
 	private SerialAnalyzer serial_analyzer = null;
 	private Thread t = null;
 	private SerialPortWrapper serial_port = null;
+	private AtomicBoolean exit = new AtomicBoolean(false);
 	private boolean device_handle_exist = false;
-	private boolean exit = false;
 
 	enum SCG_COMMAND_STATUS{SCG_COMMAND_NONE, SCG_COMMAND_DETECTED, SCG_COMMAND_PROCESS, SCG_COMMAND_COMPLETE};
 	SCG_COMMAND_STATUS scg_command_status = SCG_COMMAND_STATUS.SCG_COMMAND_NONE;
@@ -94,9 +95,8 @@ public class SerialReceiver implements Runnable
 				}
 				else
 				{
-			// Remove the space character...
-//					new_serial_data.erase(remove(new_serial_data.begin(), new_serial_data.end(), ' '), new_serial_data.end());
-					scg_command_buf.append(new_serial_data);
+// Remove the space character...
+					scg_command_buf.append(new_serial_data.replaceAll("\\s", ""));
 					ret = MsgAnalyzerCmnDef.ANALYZER_FAILURE_WAIT_SCG_COMMAND;
 				}
 				return ret;
@@ -115,7 +115,7 @@ public class SerialReceiver implements Runnable
 	{
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
 // Open the serial port
-		MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Initialize the SerialPortWrapper object");
+		MsgAnalyzerCmnDef.WriteDebugSyslog("Initialize the SerialPortWrapper object");
 		ret = serial_port.open_serial();
 		if (MsgAnalyzerCmnDef.CheckFailure(ret))
 			return ret;
@@ -130,29 +130,27 @@ public class SerialReceiver implements Runnable
 	short deinitialize()
 	{
 	// Before killing this thread, check if the thread is STILL alive
-		if (!exit)
+		if(!t.isAlive())
+			MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread in the SerialReceiver object did NOT exist......");
+		else
 		{
-			try
-			{
-				exit = true;
-// Sleep so that the worker thread can write the the rest messages to the device
-				Thread.sleep(2000);
-
-				synchronized(this)
-				{
-					System.out.println("Notify the worker thread it's going to die...");
-					notify();
-				}
-				t.join(3000);
-				System.out.println("The thread is dead");
+			exit.set(true);
+			MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread in the SerialReceiver object is STILL alive");
+			t.interrupt();
+	        try 
+	        {
+// wait till this thread dies
+	            t.join(2000);
+//	            System.out.println("The worker thread of receiving serial data is dead");
+	            MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread of receving serial data is dead");
 			}
 			catch (InterruptedException e)
 			{
-				System.out.println("Error occur while waiting for thread's death: " + e.toString());
+				MsgAnalyzerCmnDef.WriteDebugSyslog("The receiving serial data worker thread throws a InterruptedException...");
 			}
 			catch(Exception e)
 			{
-				System.out.println("Error occur: " + e.toString());
+				MsgAnalyzerCmnDef.WriteErrorSyslog("Error occur while waiting for death of receving serial data worker thread, due to: " + e.toString());
 			}
 		}
 		device_handle_exist = false;
@@ -173,7 +171,7 @@ public class SerialReceiver implements Runnable
 		int count = 0;
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
 		
-		while (!exit)
+		while (!exit.get())
 		{
 			StringBuilder buf = new StringBuilder();
 			ret = serial_port.read_serial(buf);
@@ -208,10 +206,7 @@ public class SerialReceiver implements Runnable
 
 			ret = MsgAnalyzerCmnDef.parse_serial_parameter(new_serial_data, highlight, MsgAnalyzerCmnDef.SHOW_DEVICE_SYSLOG);
 			if (MsgAnalyzerCmnDef.CheckSuccess(ret))
-			{
-				// Update the data
-				ret = serial_analyzer.add_serial_data(new_serial_data, highlight);
-			}
+				ret = serial_analyzer.add_serial_data(new_serial_data, highlight); // Update the data
 		}
 		else
 		{
