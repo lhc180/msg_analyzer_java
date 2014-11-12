@@ -118,9 +118,10 @@ public class SerialAnalyzer implements Runnable
 			catch(Exception e)
 			{
 				MsgAnalyzerCmnDef.WriteErrorSyslog("Error occur while waiting for death of analyzing serial data worker thread, due to: " + e.toString());
+				ret = MsgAnalyzerCmnDef.ANALYZER_FAILURE_UNKNOWN;
+				break;
 			}
-
-			MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread of analyzing message is dead !!!");				
 		}
+		MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread of analyzing message is dead !!!");
 	}
 }

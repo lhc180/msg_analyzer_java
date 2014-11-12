@@ -189,6 +189,7 @@ public class SerialReceiver implements Runnable
 			if (MsgAnalyzerCmnDef.CheckFailure(ret))
 				break;
 		}	
+		MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread of receiving message is dead !!!");
 	}
 
 	short check_data_content(String new_serial_data)
