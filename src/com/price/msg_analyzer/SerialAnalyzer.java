@@ -53,11 +53,11 @@ public class SerialAnalyzer implements Runnable
 		if (MsgAnalyzerCmnDef.CheckFailure(ret))
 			return ret;
 
-// Notify the worker thread of receiving serial data to die...
+// Notify the worker thread of analyzing serial data to die...
 //		t.interrupt();
+		MsgAnalyzerCmnDef.WriteDebugSyslog("Notify the worker thread of analyzing the serial data it's going to die...");
 		synchronized(this)
 		{
-			System.out.println("Notify the worker thread it's going to die...");
 			notify();
 		}
 		MsgAnalyzerCmnDef.WriteDebugSyslog("Wait for the worker thread of analyzing serial data's death...");
