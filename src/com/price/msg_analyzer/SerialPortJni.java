@@ -10,6 +10,5 @@ public class SerialPortJni
 	public native short deinitialize();
 	public native short open_serial(String serial_device_file, int serial_baudrate);
 	public native short close_serial();
-	public native short read_serial(StringBuilder buf);
-	public native short write_serial();
+	public native short read_serial(StringBuilder buf, int expected_len, int[] actual_len);
 }

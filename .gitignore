@@ -3,4 +3,6 @@
 .settings/
 bin/
 log/
+jni/*.o
+jni/*.so
 

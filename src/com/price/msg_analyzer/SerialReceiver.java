@@ -6,9 +6,12 @@ import java.util.concurrent.atomic.*;
 
 public class SerialReceiver implements Runnable
 {
+	static int BUF_SIZE = 256;
+	static int WAIT_TIMEOUT = 10;
+
 	private SerialAnalyzer serial_analyzer = null;
 	private Thread t = null;
-	private SerialPortWrapper serial_port = null;
+	private SerialPortJni serial_port = null;
 	private AtomicBoolean exit = new AtomicBoolean(false);
 	private boolean device_handle_exist = false;
 
@@ -107,7 +110,7 @@ public class SerialReceiver implements Runnable
 	public SerialReceiver(SerialAnalyzer srl_analyzer)
 	{
 		serial_analyzer = srl_analyzer;
-		serial_port = new SerialPortWrapper(this);
+		serial_port = new SerialPortJni();
 		t = new Thread(this);
 	}
 
@@ -116,7 +119,7 @@ public class SerialReceiver implements Runnable
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
 // Open the serial port
 		MsgAnalyzerCmnDef.WriteDebugSyslog("Initialize the SerialPortWrapper object");
-		ret = serial_port.open_serial();
+		ret = serial_port.open_serial(MsgAnalyzerCmnDef.DEVICE_FILE, MsgAnalyzerCmnDef.BAUD_RATE);
 		if (MsgAnalyzerCmnDef.CheckFailure(ret))
 			return ret;
 		device_handle_exist = true;
@@ -137,12 +140,12 @@ public class SerialReceiver implements Runnable
 			exit.set(true);
 			MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread in the SerialReceiver object is STILL alive");
 			t.interrupt();
-	        try 
-	        {
+			try 
+			{
 // wait till this thread dies
-	            t.join(2000);
+				t.join(2000);
 //	            System.out.println("The worker thread of receiving serial data is dead");
-	            MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread of receving serial data is dead");
+				MsgAnalyzerCmnDef.WriteDebugSyslog("The worker thread of receving serial data is dead");
 			}
 			catch (InterruptedException e)
 			{
@@ -170,11 +173,14 @@ public class SerialReceiver implements Runnable
 	{	
 		int count = 0;
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
-		
+		int buf_size = BUF_SIZE;
+		int[] actual_datalen = new int[1];
+
+		LABEL:
 		while (!exit.get())
 		{
 			StringBuilder buf = new StringBuilder();
-			ret = serial_port.read_serial(buf);
+			ret = serial_port.read_serial(buf, buf_size, actual_datalen);
 			if (MsgAnalyzerCmnDef.CheckFailure(ret))
 				break;
 
@@ -182,6 +188,34 @@ public class SerialReceiver implements Runnable
 // Ignore the data which are NOT interested in
 			if (new_serial_data.length() == 1 && new_serial_data.charAt(0) == '\n')
 				continue;
+
+			// Check if the data is finished !!!
+			if (actual_datalen[0] == buf_size && new_serial_data.charAt(buf_size - 1) != '\n')
+			{
+				MsgAnalyzerCmnDef.WriteDebugFormatSyslog("The buffer size[%d] is NOT enough", buf_size);
+				int total_actual_datalen = buf_size;
+				int total_buf_size = buf_size;
+				while (true)
+				{
+					int old_total_buf_size = total_buf_size;
+					total_buf_size <<= 1;
+
+	// Read the following data
+					buf = new StringBuilder();
+					ret = serial_port.read_serial(buf, old_total_buf_size, actual_datalen);
+					if (MsgAnalyzerCmnDef.CheckFailure(ret))
+						 break LABEL;
+					MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Read the data size: %d, actual length: %d", old_total_buf_size, actual_datalen);
+					new_serial_data += buf.toString();
+					
+					if (!(actual_datalen[0] == old_total_buf_size && new_serial_data.charAt(total_buf_size - 1) != '\n'))
+					{
+						actual_datalen[0] += old_total_buf_size;
+						MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Get the full data, size: %d", actual_datalen[0]);
+						break;
+					}
+				}
+			}
 
 			MsgAnalyzerCmnDef.WriteDebugFormatSyslog("New Data[%d], data length: %d, data: %s", ++count, new_serial_data.length(), new_serial_data);
 // Check the data content is correct

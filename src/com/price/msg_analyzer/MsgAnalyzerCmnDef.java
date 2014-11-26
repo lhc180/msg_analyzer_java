@@ -2,7 +2,7 @@ package com.price.msg_analyzer;
 
 import java.util.regex.*;
 
-public class MsgAnalyzerCmnDef 
+public class MsgAnalyzerCmnDef
 {
 	private static MsgDumperWrapper msg_dumper = MsgDumperWrapper.get_instance();
 
@@ -21,6 +21,9 @@ public class MsgAnalyzerCmnDef
 	public static final byte SHOW_DEVICE_SYSLOG = 0x2;
 	private static boolean checkShowDeviceEnable(byte value, byte flag){return ((value & flag) != 0 ? true : false);}
 
+	static public String DEVICE_FILE = "/dev/ttyUSB0";
+	static public int BAUD_RATE = 115200;
+	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enumeration
 	enum SeverityType {SEVERITY_ERROR, SEVERITY_WARN, SEVERITY_INFO, SEVERITY_DEBUG, SEVERITY_NONE};

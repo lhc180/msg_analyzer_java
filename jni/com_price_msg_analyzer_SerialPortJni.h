@@ -42,18 +42,11 @@ JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_close_1seria
 /*
  * Class:     com_price_msg_analyzer_SerialPortJni
  * Method:    read_serial
- * Signature: (Ljava/lang/StringBuilder;)S
+ * Signature: (Ljava/lang/StringBuilder;I[I)S
  */
 JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_read_1serial
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jint, jintArray);
 
-/*
- * Class:     com_price_msg_analyzer_SerialPortJni
- * Method:    write_serial
- * Signature: ()S
- */
-JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_write_1serial
-  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }
