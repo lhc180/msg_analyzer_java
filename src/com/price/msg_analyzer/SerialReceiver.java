@@ -117,8 +117,14 @@ public class SerialReceiver implements Runnable
 	short initialize()
 	{
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
-// Open the serial port
+// Initialize the serial port library
 		MsgAnalyzerCmnDef.WriteDebugSyslog("Initialize the SerialPortWrapper object");
+		ret = serial_port.initialize();
+		if (MsgAnalyzerCmnDef.CheckFailure(ret))
+			return ret;
+
+// Open the serial port
+		MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Open the serial port[%s, %d]", MsgAnalyzerCmnDef.DEVICE_FILE, MsgAnalyzerCmnDef.BAUD_RATE);
 		ret = serial_port.open_serial(MsgAnalyzerCmnDef.DEVICE_FILE, MsgAnalyzerCmnDef.BAUD_RATE);
 		if (MsgAnalyzerCmnDef.CheckFailure(ret))
 			return ret;
@@ -158,9 +164,20 @@ public class SerialReceiver implements Runnable
 		}
 		device_handle_exist = false;
 
+		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
 // Close the serial port
 		MsgAnalyzerCmnDef.WriteDebugSyslog("De-initialize the SerialPortWrapper object");
-		return serial_port.close_serial();
+		ret = serial_port.close_serial();
+		if (MsgAnalyzerCmnDef.CheckFailure(ret))
+			return ret;
+
+// De-Initialize the serial port library
+		MsgAnalyzerCmnDef.WriteDebugSyslog("DeInitialize the SerialPortWrapper object");
+		ret = serial_port.deinitialize();
+		if (MsgAnalyzerCmnDef.CheckFailure(ret))
+			return ret;
+
+		return ret;
 	}
 
 	short check_scg_command(String new_serial_data)

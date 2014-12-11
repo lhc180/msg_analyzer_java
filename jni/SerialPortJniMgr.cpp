@@ -2,7 +2,7 @@
 #include "msg_dumper.h"
 
 
-char* SerialPortJniMgr::so_filename = "libmsg_dumper.so";
+char* SerialPortJniMgr::so_filename = "./libmsg_dumper.so";
 
 SerialPortJniMgr::SerialPortJniMgr() :
 	handle(NULL),
@@ -12,7 +12,6 @@ SerialPortJniMgr::SerialPortJniMgr() :
 	fp_serial_port_close_serial(NULL),
 	fp_serial_port_read_serial(NULL)
 {
-
 }
 
 unsigned short SerialPortJniMgr::initialize()

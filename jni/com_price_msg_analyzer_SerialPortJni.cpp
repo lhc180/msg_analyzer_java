@@ -4,6 +4,7 @@
 #include <string>
 #include "serial_port_lib.h"
 #include "msg_dumper.h"
+#include "syslog_debug.h"
 #include "SerialPortJniMgr.h"
 
 
@@ -35,6 +36,8 @@ JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_open_1serial
 {
 	string device_file = jstring2str(env, jdevice_file);
 	int baud_rate = (int)jbaud_rate;
+
+	WRITE_DEBUG_FORMAT_SYSLOG("(JNI) device file: %s, baud rate: %d", device_file.c_str(), baud_rate);
 	return serial_port_jni_mgr.open_serial(device_file.c_str(), baud_rate);
 }
 
