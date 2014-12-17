@@ -117,11 +117,6 @@ public class SerialReceiver implements Runnable
 	short initialize()
 	{
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
-// Initialize the serial port library
-		MsgAnalyzerCmnDef.WriteDebugSyslog("Initialize the SerialPortWrapper object");
-		ret = serial_port.initialize();
-		if (MsgAnalyzerCmnDef.CheckFailure(ret))
-			return ret;
 
 // Open the serial port
 		MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Open the serial port[%s, %d]", MsgAnalyzerCmnDef.DEVICE_FILE, MsgAnalyzerCmnDef.BAUD_RATE);
@@ -171,12 +166,6 @@ public class SerialReceiver implements Runnable
 		if (MsgAnalyzerCmnDef.CheckFailure(ret))
 			return ret;
 
-// De-Initialize the serial port library
-		MsgAnalyzerCmnDef.WriteDebugSyslog("DeInitialize the SerialPortWrapper object");
-		ret = serial_port.deinitialize();
-		if (MsgAnalyzerCmnDef.CheckFailure(ret))
-			return ret;
-
 		return ret;
 	}
 
@@ -197,11 +186,14 @@ public class SerialReceiver implements Runnable
 		while (!exit.get())
 		{
 			StringBuilder buf = new StringBuilder();
+			System.out.println("Read BEGIN !!!");
 			ret = serial_port.read_serial(buf, buf_size, actual_datalen);
+			System.out.println("Read END !!!");
 			if (MsgAnalyzerCmnDef.CheckFailure(ret))
 				break;
 
 			String new_serial_data = buf.toString();
+			System.out.printf("Read new serial data: %s\n", new_serial_data);
 // Ignore the data which are NOT interested in
 			if (new_serial_data.length() == 1 && new_serial_data.charAt(0) == '\n')
 				continue;

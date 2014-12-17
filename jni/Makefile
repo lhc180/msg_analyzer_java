@@ -3,10 +3,10 @@ HEADER := /usr/lib/jvm/java-6-openjdk/include/
 
 CXXFLAGS := -g -Wall -shared -fpic
 
-SOURCES := com_price_msg_analyzer_SerialPortJni.cpp SerialPortJniMgr.cpp
+SOURCES := com_price_msg_analyzer_SerialPortJni.cpp serial_port_jni_mgr.cpp
 OBJS := $(SOURCES:.cpp=.o)
 
-OUTPUT := libmsg_dumper_serial.so
+OUTPUT := libserial_port.so
 
 build: $(OUTPUT)
 	 cp $(OUTPUT) ../lib/

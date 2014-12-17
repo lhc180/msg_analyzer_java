@@ -27,5 +27,9 @@ WRITE_SYSLOG_END()
 #define WRITE_INFO_FORMAT_SYSLOG(message_format, ...) WRITE_FORMAT_SYSLOG(LOG_INFO, message_format, __VA_ARGS__)
 #define WRITE_ERR_FORMAT_SYSLOG(message_format, ...) WRITE_FORMAT_SYSLOG(LOG_ERR, message_format, __VA_ARGS__)
 
+#define WRITE_DEBUG_SYSLOG(message) WRITE_FORMAT_SYSLOG(LOG_DEBUG, "%s", message)
+#define WRITE_INFO_SYSLOG(message) WRITE_FORMAT_SYSLOG(LOG_INFO, "%s", message)
+#define WRITE_ERR_SYSLOG(message) WRITE_FORMAT_SYSLOG(LOG_ERR, "%s", message)
+
 
 #endif

@@ -9,22 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_price_msg_analyzer_SerialPortJni
- * Method:    initialize
- * Signature: ()S
- */
-JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_initialize
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_price_msg_analyzer_SerialPortJni
- * Method:    deinitialize
- * Signature: ()S
- */
-JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_deinitialize
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_price_msg_analyzer_SerialPortJni
  * Method:    open_serial
  * Signature: (Ljava/lang/String;I)S
  */

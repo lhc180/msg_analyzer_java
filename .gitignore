@@ -5,4 +5,5 @@ bin/
 log/
 jni/*.o
 jni/*.so
+*.log
 

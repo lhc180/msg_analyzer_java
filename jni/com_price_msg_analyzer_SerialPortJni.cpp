@@ -1,11 +1,11 @@
 #include "com_price_msg_analyzer_SerialPortJni.h"
+#include <assert.h>
 #include <string.h>
 #include <iostream>
 #include <string>
-#include "serial_port_lib.h"
-#include "msg_dumper.h"
 #include "syslog_debug.h"
-#include "SerialPortJniMgr.h"
+#include "serial_port_jni_mgr.h"
+#include "serial_port_cmn_def.h"
 
 
 using namespace std;
@@ -13,6 +13,7 @@ using namespace std;
 static const char* StringBuilder_ClassName = "java/lang/StringBuilder";
 static const char* StringBuilder_append_MethodName = "append";
 static const char* StringBuilder_append_MethodSignature = "(Ljava/lang/String;)Ljava/lang/StringBuilder;";
+
 static jstring str2jstring(JNIEnv* env,const char* pat);
 static string jstring2str(JNIEnv* env, jstring jstr);
 static void init_StringBuilder_Append_method(JNIEnv* env);
@@ -22,22 +23,12 @@ static jmethodID StringBuilder_append_Method = 0;
 
 SerialPortJniMgr serial_port_jni_mgr;
 
-JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_initialize(JNIEnv *env, jobject jobj)
-{
-	return serial_port_jni_mgr.initialize();
-}
-
-JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_deinitialize(JNIEnv *env, jobject jobj)
-{
-	return serial_port_jni_mgr.deinitialize();
-}
-
 JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_open_1serial(JNIEnv *env, jobject jobj, jstring jdevice_file, jint jbaud_rate)
 {
 	string device_file = jstring2str(env, jdevice_file);
 	int baud_rate = (int)jbaud_rate;
 
-	WRITE_DEBUG_FORMAT_SYSLOG("(JNI) device file: %s, baud rate: %d", device_file.c_str(), baud_rate);
+	WRITE_DEBUG_FORMAT_SYSLOG("(JNI) Open serial, device file: %s, baud rate: %d", device_file.c_str(), baud_rate);
 	return serial_port_jni_mgr.open_serial(device_file.c_str(), baud_rate);
 }
 
@@ -53,23 +44,29 @@ JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_read_1serial
 
 	int expected_len = (int)jexpected_len;
 	int* actual_len = env->GetIntArrayElements(jactual_len, NULL);
-
 	int old_buf_size = buf_size;
 	while(buf_size < expected_len)
 		buf_size <<= 1;
+
 	if (buf_size != old_buf_size)
 		buf = (char*)realloc(buf, buf_size);
 
 	if (buf == NULL)
-		return MSG_DUMPER_FAILURE_INSUFFICIENT_MEMORY;
+	{
+		WRITE_ERR_SYSLOG("Insufficient memory: buf");
+		return SERIAL_PORT_FAILURE_INSUFFICIENT_MEMORY;
+	}
 
-	unsigned short ret = serial_port_jni_mgr.read_serial(buf, expected_len, *actual_len);
+	short ret = serial_port_jni_mgr.read_serial(buf, expected_len, *actual_len);
+	if (CHECK_SERIAL_PORT_FAILURE(ret))
+		return ret;
 
+// Transform into JAVA object
+	WRITE_DEBUG_FORMAT_SYSLOG("(JNI) buf: %s, acutal len: %d", buf, *actual_len);
 	init_StringBuilder_Append_method(env);
-
     jstring jString = env->NewStringUTF(buf);
-    // Because StringBuild.append() returns object, you should call CallObjectMethod
-    jobject ret_java = env->CallObjectMethod(jobj, StringBuilder_append_Method, jString);
+// Because StringBuild.append() returns object, you should call CallObjectMethod
+    env->CallObjectMethod(jbuf, StringBuilder_append_Method, jString);
 
 	return ret;
 }
@@ -111,17 +108,29 @@ string jstring2str(JNIEnv* env, jstring jstr)
 	return stemp;
 }
 
-
 void init_StringBuilder_Append_method(JNIEnv* env)
 {
+// Find the StringBuilder class
      if(StringBuilder_Class == NULL)
      {
          StringBuilder_Class = env->FindClass(StringBuilder_ClassName);
          // TODO: Handle error if class not found
+         if (StringBuilder_Class == NULL)
+         {
+        	 WRITE_ERR_SYSLOG("StringBuilder_Class == NULL");
+        	 assert(0 && "StringBuilder_Class == NULL");
+         }
      }
+
+// Find the append member function in the StringBuilder class
      if(StringBuilder_append_Method == NULL)
      {
          StringBuilder_append_Method = env->GetMethodID(StringBuilder_Class, StringBuilder_append_MethodName, StringBuilder_append_MethodSignature);
          // TODO: Handle error if method not found
+         if (StringBuilder_append_Method == NULL)
+         {
+        	 WRITE_ERR_SYSLOG("StringBuilder_append_Method == NULL");
+        	 assert(0 && "StringBuilder_append_Method == NULL");
+         }
      }
 }

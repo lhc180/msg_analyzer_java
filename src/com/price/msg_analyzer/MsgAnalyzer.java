@@ -10,11 +10,11 @@ public class MsgAnalyzer
 		System.out.println("Start the read the data from serial port......");
 
 		SerialAnalyzer serial_analyzer = new SerialAnalyzer();
-		serial_analyzer.initialize();
+		short ret = serial_analyzer.initialize();
 
 		try
 		{
-			Thread.sleep(1000000);
+			Thread.sleep(1000000000);
 		}
 		catch(InterruptedException e){}
 
