@@ -51,7 +51,7 @@ public class MsgDumperWrapper
 		}
 // Initialize the library
 		System.out.printf("Error Writer Initialize the library\n");
-		ret = MsgDumper.initialize();
+		ret = MsgDumper.initialize(".");
 		if (MsgDumperCmnDef.CheckMsgDumperFailure(ret))
 		{
 			System.out.printf("Error Writer initialize() fails, due to %d\n", ret);
