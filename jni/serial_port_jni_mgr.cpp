@@ -117,16 +117,13 @@ unsigned short SerialPortJniMgr::read_serial(char* buf, int buf_size, int& actua
 		return SERIAL_PORT_FAILURE_INVALID_ARGUMENT;
 	}
 
-	WRITE_DEBUG_SYSLOG("Check1");
 	actual_datalen = read(fd, buf, buf_size);
-	WRITE_DEBUG_SYSLOG("Check2");
 	WRITE_DEBUG_FORMAT_SYSLOG("read data: %s, len: %d\n", buf, buf_size);
 	if (actual_datalen == -1)
 	{
 		WRITE_ERR_FORMAT_SYSLOG("read() failed, due to %s\n", strerror(errno));
 		return SERIAL_PORT_FAILURE_UNKNOWN;
 	}
-	WRITE_DEBUG_SYSLOG("Check3");
 
 	return SERIAL_PORT_SUCCESS;
 }

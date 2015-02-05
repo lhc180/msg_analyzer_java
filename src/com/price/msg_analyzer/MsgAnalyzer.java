@@ -1,10 +1,12 @@
 package com.price.msg_analyzer;
 
 import java.lang.Thread;
-
+import java.io.*;
 
 public class MsgAnalyzer 
 {	
+	public static final String DUMP_WHT = "[31m";
+
 	public static void main(String args[])
 	{
 		System.out.println("Start the read the data from serial port......");

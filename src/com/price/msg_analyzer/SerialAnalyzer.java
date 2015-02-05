@@ -36,10 +36,10 @@ public class SerialAnalyzer implements Runnable
 		}
 
 // Open the serial port
-	    MsgAnalyzerCmnDef.WriteDebugSyslog("Initialize the SerialReceiver object\n");
-	    ret = serial_receiver.initialize();
-	    if (MsgAnalyzerCmnDef.CheckFailure(ret))
-	    	return ret;
+		MsgAnalyzerCmnDef.WriteDebugSyslog("Initialize the SerialReceiver object\n");
+		ret = serial_receiver.initialize();
+		if (MsgAnalyzerCmnDef.CheckFailure(ret))
+			return ret;
 
 		return ret;
 	}
@@ -96,7 +96,6 @@ public class SerialAnalyzer implements Runnable
 	public void run() 
 	{
 		short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
-		
 		// TODO Auto-generated method stub
 		while (!exit.get())
 		{
@@ -105,7 +104,7 @@ public class SerialAnalyzer implements Runnable
 				synchronized(this)
 				{
 					wait(); // Wait for the signal, the thread should be created first
-					// Parse each data from the serial port
+// Parse each data from the serial port
 					ret = MsgAnalyzerCmnDef.parse_serial_parameter(serial_data, highlight, MsgAnalyzerCmnDef.SHOW_DEVICE_CONSOLE);
 					if (MsgAnalyzerCmnDef.CheckFailure(ret))
 						break;

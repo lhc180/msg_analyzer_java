@@ -32,29 +32,29 @@ public class MsgDumperWrapper
 		short ret = MsgDumperCmnDef.MSG_DUMPER_SUCCESS;
 		short severity = MsgDumperCmnDef.MSG_DUMPER_SEVIRITY_ERROR;
 		short facility = MsgDumperCmnDef.MSG_DUMPER_FACILITY_LOG;
-		System.out.printf("Error Writer API version: (%s)\n", MsgDumper.get_version());
+		System.out.printf("Msg Dumper API version: (%s)\n", MsgDumper.get_version());
 // Set severity
-		System.out.printf("Error Writer Set severity to :%d\n", severity);
+		System.out.printf("Msg Dumper Set severity to :%d\n", severity);
 		ret = MsgDumper.set_severity(severity);
 		if (MsgDumperCmnDef.CheckMsgDumperFailure(ret))
 		{
-			System.out.printf("Error Writer set_severity() fails, due to %d\n", ret);
+			System.out.printf("Msg Dumper set_severity() fails, due to %d\n", ret);
 			System.exit(1);
 		}
 // Set facility
-		System.out.printf("Error Writer Set facility to :%d\n", facility);
+		System.out.printf("Msg Dumper Set facility to :%d\n", facility);
 		ret = MsgDumper.set_facility(facility);
 		if (MsgDumperCmnDef.CheckMsgDumperFailure(ret))
 		{
-			System.out.printf("Error Writer set_facility() fails, due to %d\n", ret);
+			System.out.printf("Msg Dumper set_facility() fails, due to %d\n", ret);
 			System.exit(1);
 		}
 // Initialize the library
-		System.out.printf("Error Writer Initialize the library\n");
+		System.out.printf("Msg Dumper Initialize the library\n");
 		ret = MsgDumper.initialize(".");
 		if (MsgDumperCmnDef.CheckMsgDumperFailure(ret))
 		{
-			System.out.printf("Error Writer initialize() fails, due to %d\n", ret);
+			System.out.printf("Msg Dumper initialize() fails, due to %d\n", ret);
 			System.exit(1);
 		}
 	}

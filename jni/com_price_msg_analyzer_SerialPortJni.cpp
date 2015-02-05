@@ -43,11 +43,11 @@ JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_read_1serial
 	static char* buf = new char[buf_size];
 
 	int expected_len = (int)jexpected_len;
-	int* actual_len = env->GetIntArrayElements(jactual_len, NULL);
+	int* actual_len = env->GetIntArrayElements(jactual_len, 0);
+// Expand the buffer size if not enough
 	int old_buf_size = buf_size;
 	while(buf_size < expected_len)
 		buf_size <<= 1;
-
 	if (buf_size != old_buf_size)
 		buf = (char*)realloc(buf, buf_size);
 
@@ -57,16 +57,20 @@ JNIEXPORT jshort JNICALL Java_com_price_msg_1analyzer_SerialPortJni_read_1serial
 		return SERIAL_PORT_FAILURE_INSUFFICIENT_MEMORY;
 	}
 
-	short ret = serial_port_jni_mgr.read_serial(buf, expected_len, *actual_len);
+// Read the data from serial port
+	memset(buf, 0x0, sizeof(char) * buf_size);
+	short ret = serial_port_jni_mgr.read_serial(buf, expected_len, actual_len[0]);
 	if (CHECK_SERIAL_PORT_FAILURE(ret))
 		return ret;
 
 // Transform into JAVA object
-	WRITE_DEBUG_FORMAT_SYSLOG("(JNI) buf: %s, acutal len: %d", buf, *actual_len);
+	WRITE_DEBUG_FORMAT_SYSLOG("(JNI) buf: %s; acutal len: %d", buf, actual_len[0]);
 	init_StringBuilder_Append_method(env);
-    jstring jString = env->NewStringUTF(buf);
+	jstring jString = env->NewStringUTF(buf);
 // Because StringBuild.append() returns object, you should call CallObjectMethod
-    env->CallObjectMethod(jbuf, StringBuilder_append_Method, jString);
+	env->CallObjectMethod(jbuf, StringBuilder_append_Method, jString);
+// Release the array in JNI. Caution: it's necessary
+	env->ReleaseIntArrayElements(jactual_len, actual_len, 0);
 
 	return ret;
 }
