@@ -2,6 +2,7 @@ package com.price.msg_analyzer;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;
+import java.util.regex.*;
 import java.io.*;
 
 
@@ -30,13 +31,15 @@ public class SerialReceiver extends MsgAnalyzerCmnBase implements Runnable
 	{
 		new ParseCommandInf()
 		{
-			String scg_command_data_check = "checkNewConfig 309 CONFIGURATIONS =>";
+			String scg_command_data_check = "checkNewConfig ([\\d]{3}) CONFIGURATIONS =>";
 			@Override
 			public short parse_command(String new_serial_data) 
 			{
 				short ret = MsgAnalyzerCmnDef.ANALYZER_SUCCESS;
-				int pos = new_serial_data.indexOf(scg_command_data_check);
-				if (pos >= 0)
+				Pattern datePattern = Pattern.compile("checkNewConfig ([\\d]{3}) CONFIGURATIONS =>");
+				Matcher dateMatcher = datePattern.matcher(new_serial_data);
+//				int pos = new_serial_data.indexOf(scg_command_data_check);
+				if (dateMatcher.find())
 				{
 					scg_command_buf = new StringBuilder(new_serial_data);
 					scg_command_status = SCG_COMMAND_STATUS.SCG_COMMAND_DETECTED;
@@ -49,14 +52,14 @@ public class SerialReceiver extends MsgAnalyzerCmnBase implements Runnable
 					int pos_colon = new_serial_data.indexOf(": ");
 					if (pos_colon == -1)
 					{
-						MsgAnalyzerCmnDef.WriteErrorFormatSyslog("Ignore incorrect data format(1): %s", new_serial_data);
+						MsgAnalyzerCmnDef.WriteWarnFormatSyslog("Ignore incorrect data format(1): %s", new_serial_data);
 						ret = MsgAnalyzerCmnDef.ANALYZER_FAILURE_IGNORE_DATA ;
 					}
 					else
 					{
 						if (pos_colon < MsgAnalyzerCmnDef.MIN_SERAIL_DATA_TITLE_LENGTH)
 						{
-							MsgAnalyzerCmnDef.WriteErrorFormatSyslog("Ignore incorrect data format(2): %s", new_serial_data);
+							MsgAnalyzerCmnDef.WriteWarnFormatSyslog("Ignore incorrect data format(2): %s", new_serial_data);
 							ret = MsgAnalyzerCmnDef.ANALYZER_FAILURE_IGNORE_DATA;
 						}
 					}
@@ -292,7 +295,7 @@ public class SerialReceiver extends MsgAnalyzerCmnBase implements Runnable
 					ret = serial_port.read_serial(buf, old_total_buf_size, actual_datalen);
 					if (MsgAnalyzerCmnDef.CheckFailure(ret))
 						 break LABEL;
-					MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Read the data size: %d, actual length: %d", old_total_buf_size, actual_datalen);
+					MsgAnalyzerCmnDef.WriteDebugFormatSyslog("Read the data size: %d, actual length: %d", old_total_buf_size, actual_datalen[0]);
 					new_serial_data += buf.toString();
 
 					if (!(actual_datalen[0] == old_total_buf_size && new_serial_data.charAt(total_buf_size - 1) != '\n'))

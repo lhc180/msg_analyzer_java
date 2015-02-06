@@ -28,8 +28,9 @@ public class MsgAnalyzerCmnDef
 	static public int DEF_BAUD_RATE = 115200;
 	static public String CONF_FOLDER_NAME = "conf";
 	static public String CONF_FILE_NAME = "serial_port_param.conf";
-	static private boolean SHOW_CONSOLE = true;
-	static private boolean SHOW_CONSOLE_ERROR = SHOW_CONSOLE && true;
+	static private boolean SHOW_CONSOLE_ERROR = true;
+	static private boolean SHOW_CONSOLE = SHOW_CONSOLE_ERROR && false;
+	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enumeration
@@ -167,14 +168,14 @@ public class MsgAnalyzerCmnDef
 		int pos = tmp_serial_data.indexOf(": ");
 		if (pos < 0)
 		{
-			WriteDebugFormatSyslog("Ignore incorrect data format(1): %s", tmp_serial_data);
+			WriteWarnFormatSyslog("Ignore incorrect data format(1): %s", tmp_serial_data);
 			ret = ANALYZER_FAILURE_IGNORE_DATA;
 		}
 		else
 		{
 			if (pos < MIN_SERAIL_DATA_TITLE_LENGTH)
 			{
-				WriteDebugFormatSyslog("Ignore incorrect data format(2): %s", tmp_serial_data);
+				WriteWarnFormatSyslog("Ignore incorrect data format(2): %s", tmp_serial_data);
 				ret = ANALYZER_FAILURE_IGNORE_DATA;
 			}
 			else
@@ -200,7 +201,7 @@ public class MsgAnalyzerCmnDef
 				}
 				else
 				{
-					WriteDebugFormatSyslog("Ignore incorrect data format(3): %s", title);
+					WriteWarnFormatSyslog("Ignore incorrect data format(3): %s", title);
 					ret = ANALYZER_FAILURE_IGNORE_DATA;
 				}
 			}
@@ -210,8 +211,13 @@ public class MsgAnalyzerCmnDef
 		{
 			String res = String.format("Date: %s, Time: %s, Number: %s, Severity: %s, Content: %s", date, time, number, severity, content);
 			if (checkShowDeviceEnable(show_device_flags, SHOW_DEVICE_CONSOLE))
-				System.out.println(res);
+			{
+				if (highlight) // Exploit the red color in console to highlight the inteseting string...
+					System.err.println(res);
+				else
+					System.out.println(res);
 //				System.out.printf("%s%s\n",(highlight ? DUMP_CYN : severity_color), res);
+			}
 			if (checkShowDeviceEnable(show_device_flags, SHOW_DEVICE_SYSLOG))
 				WriteDebugSyslog(res);
 		}
