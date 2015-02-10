@@ -97,16 +97,16 @@ string jstring2str(JNIEnv* env, jstring jstr)
 	jclass clsstring = env->FindClass("java/lang/String");
 	jstring strencode = env->NewStringUTF("GB2312");
 	jmethodID mid = env->GetMethodID(clsstring, "getBytes", "(Ljava/lang/String;)[B");
-	jbyteArray barr= (jbyteArray)env->CallObjectMethod(jstr,mid,strencode);
+	jbyteArray barr= (jbyteArray)env->CallObjectMethod(jstr, mid, strencode);
 	jsize alen = env->GetArrayLength(barr);
 	jbyte* ba = env->GetByteArrayElements(barr,JNI_FALSE);
 	if(alen > 0)
 	{
-		rtn = (char*)malloc(alen+1);
-		memcpy(rtn,ba,alen);
+		rtn = (char*)malloc(alen + 1);
+		memcpy(rtn, ba, alen);
 		rtn[alen]=0;
 	}
-	env->ReleaseByteArrayElements(barr,ba,0);
+	env->ReleaseByteArrayElements(barr, ba, 0);
 	std::string stemp(rtn);
 	free(rtn);
 	return stemp;
@@ -115,26 +115,26 @@ string jstring2str(JNIEnv* env, jstring jstr)
 void init_StringBuilder_Append_method(JNIEnv* env)
 {
 // Find the StringBuilder class
-     if(StringBuilder_Class == NULL)
-     {
-         StringBuilder_Class = env->FindClass(StringBuilder_ClassName);
-         // TODO: Handle error if class not found
-         if (StringBuilder_Class == NULL)
-         {
-        	 WRITE_ERR_SYSLOG("StringBuilder_Class == NULL");
-        	 assert(0 && "StringBuilder_Class == NULL");
-         }
-     }
+	if(StringBuilder_Class == NULL)
+	{
+		StringBuilder_Class = env->FindClass(StringBuilder_ClassName);
+		// TODO: Handle error if class not found
+		if (StringBuilder_Class == NULL)
+		{
+			WRITE_ERR_SYSLOG("StringBuilder_Class == NULL");
+			assert(0 && "StringBuilder_Class == NULL");
+		}
+	}
 
 // Find the append member function in the StringBuilder class
-     if(StringBuilder_append_Method == NULL)
-     {
-         StringBuilder_append_Method = env->GetMethodID(StringBuilder_Class, StringBuilder_append_MethodName, StringBuilder_append_MethodSignature);
-         // TODO: Handle error if method not found
-         if (StringBuilder_append_Method == NULL)
-         {
-        	 WRITE_ERR_SYSLOG("StringBuilder_append_Method == NULL");
-        	 assert(0 && "StringBuilder_append_Method == NULL");
-         }
-     }
+	if(StringBuilder_append_Method == NULL)
+	{
+		StringBuilder_append_Method = env->GetMethodID(StringBuilder_Class, StringBuilder_append_MethodName, StringBuilder_append_MethodSignature);
+		// TODO: Handle error if method not found
+		if (StringBuilder_append_Method == NULL)
+		{
+			WRITE_ERR_SYSLOG("StringBuilder_append_Method == NULL");
+			assert(0 && "StringBuilder_append_Method == NULL");
+		}
+	}
 }
