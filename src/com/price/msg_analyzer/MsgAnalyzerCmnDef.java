@@ -212,7 +212,7 @@ public class MsgAnalyzerCmnDef
 			String res = String.format("Date: %s, Time: %s, Number: %s, Severity: %s, Content: %s", date, time, number, severity, content);
 			if (checkShowDeviceEnable(show_device_flags, SHOW_DEVICE_CONSOLE))
 			{
-				if (highlight) // Exploit the red color in console to highlight the inteseting string...
+				if (highlight) // Exploit the red color in console to highlight the interesting string...
 					System.err.println(res);
 				else
 					System.out.println(res);
